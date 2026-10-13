@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        python: ["3.9", "3.14"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e . pytest
+      - run: pytest -q
+      - name: CLI smoke test
+        run: |
+          optik8s --help
+          optik8s metrics analyze --input samples/overprovisioned.json
